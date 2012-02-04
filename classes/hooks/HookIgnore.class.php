@@ -7,7 +7,13 @@ class PluginIgnore_HookIgnore extends Hook
     {
         $this->AddHook('template_profile_whois_item', 'ProfileView', __CLASS__);
     }
-
+    
+    /**
+     * Add ignore button to user profile
+     * 
+     * @param array $aData
+     * @return string
+     */
     public function ProfileView($aData)
     {
         $oUserProfile = $aData['oUserProfile'];

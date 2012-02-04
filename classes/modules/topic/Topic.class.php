@@ -34,7 +34,7 @@ class PluginIgnore_ModuleTopic extends PluginIgnore_Inherit_ModuleTopic
      */
     protected function _getModifiedFilter(array $aFilter)
     {
-        if ($this->oUserCurrent) {
+        if ($this->oUserCurrent && Config::Get('plugin.ignore.topics')) {
             $aIgnoredUser = $this->User_GetIgnoredUsersByUser($this->oUserCurrent->getId());
             if (count($aIgnoredUser)) {
                 if (isset($aFilter['user_id'])) {

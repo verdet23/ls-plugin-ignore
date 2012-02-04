@@ -9,7 +9,10 @@ class PluginIgnore_ActionAjax extends PluginIgnore_Inherit_ActionAjax
 
         $this->AddEventPreg('/^ignore$/i', 'EventIgnoreUser');
     }
-
+    
+    /**
+     * Ignore|disignore user
+     */
     protected function EventIgnoreUser()
     {
         if (!$this->oUserCurrent) {
