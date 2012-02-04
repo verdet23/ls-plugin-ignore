@@ -9,7 +9,8 @@ class PluginIgnore extends Plugin
 
     public $aInherits = array(
         'action' => array(
-            'ActionAjax' => '_ActionAjax'),
+            'ActionAjax' => '_ActionAjax'
+        ),
         'module' => array(
             'ModuleUser' => '_ModuleUser',
             'ModuleTopic' => '_ModuleTopic'
@@ -17,6 +18,9 @@ class PluginIgnore extends Plugin
         'mapper' => array(
             'ModuleUser_MapperUser' => '_ModuleUser_MapperUser',
             'ModuleTopic_MapperTopic' => '_ModuleTopic_MapperTopic'
+        ),
+        'entity' => array(
+            'ModuleComment_EntityComment' => '_ModuleComment_EntityComment'
         ),
     );
 
