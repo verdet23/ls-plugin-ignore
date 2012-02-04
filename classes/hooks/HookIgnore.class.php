@@ -19,6 +19,7 @@ class PluginIgnore_HookIgnore extends Hook
         $oUserProfile = $aData['oUserProfile'];
         $aForbidIgnore = Config::Get('plugin.ignore.disallow_ignore');
         $oUserCurrent = $this->User_GetUserCurrent();
+        //check if user current can ignore profile user
         if ($oUserCurrent && !in_array($oUserProfile->getId(), $aForbidIgnore) && $oUserCurrent->getId() != $oUserProfile->getId()) {
             $bIsIgnored = $this->User_IsUserIgnoredByUser($oUserCurrent->getId(), $oUserProfile->getId());
             $this->Viewer_Assign('bIsIgnored', $bIsIgnored);

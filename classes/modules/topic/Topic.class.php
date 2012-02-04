@@ -38,6 +38,7 @@ class PluginIgnore_ModuleTopic extends PluginIgnore_Inherit_ModuleTopic
             $aIgnoredUser = $this->User_GetIgnoredUsersByUser($this->oUserCurrent->getId());
             if (count($aIgnoredUser)) {
                 if (isset($aFilter['user_id'])) {
+                    //leave posibility view topics throu profile
                     if (is_array($aFilter['user_id'])) {
                         $aFilter['user_id'] = array_diff($aFilter['user_id'], $aIgnoredUser);
                         if (!count($aFilter['user_id'])) {
