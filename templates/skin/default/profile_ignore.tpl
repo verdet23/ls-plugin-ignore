@@ -2,13 +2,18 @@
     <a href="#" onclick="forbidIgnoreUser({$oUserProfile->getId()}, this); return false;">{if $bForbidIgnore}{$aLang.allow_ignore_user}{else}{$aLang.forbid_ignore_user}{/if}</a><br/>
 {/if}
 
-{if $oUserCurrent->getId() != $oUserProfile->getId() && !$bForbidIgnore}
-    <a href="#" onclick="ignoreUser({$oUserProfile->getId()}, 'topics',this); return false;">{if $bIgnoredTopics}{$aLang.disignore_user_topics}{else}{$aLang.ignore_user_topics}{/if}</a><br/>
-    <a href="#" onclick="ignoreUser({$oUserProfile->getId()}, 'comments',this); return false;">{if $bIgnoredComments}{$aLang.disignore_user_comments}{else}{$aLang.ignore_user_comments}{/if}</a><br/>
+{if $oUserCurrent->getId() != $oUserProfile->getId()}
+    {if !$bForbidIgnore}
+        <a href="#" onclick="ignoreUser({$oUserProfile->getId()}, 'topics',this); return false;">{if $bIgnoredTopics}{$aLang.disignore_user_topics}{else}{$aLang.ignore_user_topics}{/if}</a><br/>
+        <a href="#" onclick="ignoreUser({$oUserProfile->getId()}, 'comments',this); return false;">{if $bIgnoredComments}{$aLang.disignore_user_comments}{else}{$aLang.ignore_user_comments}{/if}</a><br/>
+    {/if}
+    <a href="#" onclick="ignoreTalkUser('{$oUserProfile->getLogin()}', {$oUserProfile->getId()},this); return false;">{if $bIgnoredTalks}{$aLang.disignore_user_talks}{else}{$aLang.ignore_user_talks}{/if}</a><br/>
+    
 {/if}    
 
-{literal}
 <script>
+    var bIgnoreState = {$bIgnoredTalks};
+    {literal}
     function forbidIgnoreUser(idUser, a) {
         ls.ajax(aRouter['ajax']+'forbid-ignore', {idUser: idUser}, function(result){
             if (!result) {
@@ -34,6 +39,48 @@
                 ls.msg.notice(result.sMsgTitle,result.sMsg);
             }
         });
+    }
+    function ignoreTalkUser(loginUser, idUser, a) {
+        var error = false;
+        if (bIgnoreState) {
+            ls.ajax(aRouter['talk']+'ajaxdeletefromblacklist/', {idTarget: idUser}, function(result) {
+                if (!result) {
+                    ls.msg.error('Error','Please try again later');
+                    var error = true;
+                }
+                if (result.bStateError) {
+                    ls.msg.error(null, result.sMsg);
+                    var error = true;
+                }
+                    
+                if (!error) {
+                    jQuery(a).html(ls.lang.get('ignore_user_talks'));
+                    ls.msg.notice(null,ls.lang.get('disignore_user_ok_talk'));
+                    bIgnoreState = 0;
+                }
+            });
+        } else {
+            ls.ajax(aRouter['talk']+'ajaxaddtoblacklist/', {users: loginUser}, function(result) {
+                if (result.bStateError) {
+                    ls.msg.error(null, result.sMsg);
+                    error = true;
+                } else {
+                    $.each(result.aUsers, function(index, item) {
+                        if(item.bStateError){
+                            ls.msg.notice(null, item.sMsg);
+                            error = true;
+                        }
+                    });
+                }
+            });
+            if (!error) {
+                jQuery(a).html(ls.lang.get('disignore_user_talks'));
+                ls.msg.notice(null,ls.lang.get('ignore_user_ok_talk'));
+                bIgnoreState = 1;
+            }
+                
+        }
+                
     }
 </script>
 {/literal}

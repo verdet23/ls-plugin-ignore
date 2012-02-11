@@ -6,6 +6,14 @@ class PluginIgnore_HookIgnore extends Hook
     public function RegisterHook()
     {
         $this->AddHook('template_profile_whois_item', 'ProfileView', __CLASS__);
+        $this->AddHook('profile_whois_show', 'AddJsLang', __CLASS__);
+    }
+
+    public function AddJsLang()
+    {
+        $this->Lang_AddLangJs(array(
+            'ignore_user_talks', 'disignore_user_talks', 'ignore_user_ok_talk', 'disignore_user_ok_talk'
+        ));
     }
 
     /**
@@ -26,20 +34,22 @@ class PluginIgnore_HookIgnore extends Hook
             if (in_array($oUserProfile->getId(), $aForbidIgnore)) {
                 $this->Viewer_Assign('bForbidIgnore', true);
             } else if ($oUserCurrent->getId() != $oUserProfile->getId()) {
-                
+
                 $bIgnoredTopics = $this->User_IsUserIgnoredByUser($oUserCurrent->getId(), $oUserProfile->getId(), PluginIgnore_ModuleUser::TYPE_IGNORE_TOPICS);
                 $bIgnoredComments = $this->User_IsUserIgnoredByUser($oUserCurrent->getId(), $oUserProfile->getId(), PluginIgnore_ModuleUser::TYPE_IGNORE_COMMENTS);
-                
-                $aUserBlacklist = $this->Talk_GetBlacklistByUserId($oUserCurrent->getId());
-                if (isset($aUserBlacklist[$oUserProfile->getId()])) {
-                    $bIgnoredTalk = true;
-                } else {
-                    $bIgnoredTalk = false;
-                }
+
                 $this->Viewer_Assign('bIgnoredTopics', $bIgnoredTopics);
                 $this->Viewer_Assign('bIgnoredComments', $bIgnoredComments);
-                $this->Viewer_Assign('bIgnoredTalk', $bIgnoredTalk);
             }
+            
+            $aUserBlacklist = $this->Talk_GetBlacklistByUserId($oUserCurrent->getId());
+            if (isset($aUserBlacklist[$oUserProfile->getId()])) {
+                $bIgnoredTalks = 1;
+            } else {
+                $bIgnoredTalks = 0;
+            }
+            $this->Viewer_Assign('bIgnoredTalks', $bIgnoredTalks);
+            
             return $this->Viewer_Fetch(Plugin::GetTemplatePath(__CLASS__) . 'profile_ignore.tpl');
         }
     }

@@ -6,7 +6,7 @@
 	<author>
 		<lang name="default">Verdet</lang>
 	</author>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 	<requires>
 		<livestreet>0.5.0</livestreet>
 		<plugins>
