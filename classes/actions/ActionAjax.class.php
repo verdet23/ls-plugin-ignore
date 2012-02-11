@@ -8,6 +8,52 @@ class PluginIgnore_ActionAjax extends PluginIgnore_Inherit_ActionAjax
         parent::RegisterEvent();
 
         $this->AddEventPreg('/^ignore$/i', 'EventIgnoreUser');
+        $this->AddEventPreg('/^forbid-ignore$/i', 'EventForbidIgnoreUser');
+    }
+
+    /**
+     * Allow|forbid ignore user
+     */
+    protected function EventForbidIgnoreUser()
+    {
+        // check auth
+        if (!$this->oUserCurrent) {
+            $this->Message_AddErrorSingle($this->Lang_Get('need_authorization'), $this->Lang_Get('error'));
+            return;
+        }
+        // allow only for administrator
+        if (!$this->oUserCurrent->isAdministrator()) {
+            $this->Message_AddErrorSingle($this->Lang_Get('not_access'), $this->Lang_Get('error'));
+            return;
+        }
+        // search for user
+        if (!$oUser = $this->User_GetUserById(getRequest('idUser'))) {
+            $this->Message_AddErrorSingle($this->Lang_Get('user_not_found'), $this->Lang_Get('error'));
+            return;
+        }
+
+        $aForbidIgnore = $this->User_GetForbidIgnoredUsers();
+        if (in_array($oUser->getId(), $aForbidIgnore)) {
+            // remove user from forbid ignore list
+            if ($this->User_AllowIgnoreUser($oUser->getId())) {
+                $this->Message_AddNoticeSingle($this->Lang_Get('allow_ignore_user_ok'), $this->Lang_Get('attention'));
+                $this->Viewer_AssignAjax('sText', $this->Lang_Get('forbid_ignore_user'));
+            } else {
+                $this->Message_AddErrorSingle(
+                        $this->Lang_Get('system_error'), $this->Lang_Get('error')
+                );
+            }
+        } else {
+            // add user to forbid ignore list
+            if ($this->User_ForbidIgnoreUser($oUser->getId())) {
+                $this->Message_AddNoticeSingle($this->Lang_Get('forbid_ignore_user_ok'), $this->Lang_Get('attention'));
+                $this->Viewer_AssignAjax('sText', $this->Lang_Get('allow_ignore_user'));
+            } else {
+                $this->Message_AddErrorSingle(
+                        $this->Lang_Get('system_error'), $this->Lang_Get('error')
+                );
+            }
+        }
     }
 
     /**
@@ -26,40 +72,46 @@ class PluginIgnore_ActionAjax extends PluginIgnore_Inherit_ActionAjax
             $this->Message_AddErrorSingle($this->Lang_Get('user_not_found'), $this->Lang_Get('error'));
             return;
         }
-        
-        // is user try to ignore self @maybe allow?
+
+        // is user try to ignore self
         if ($oUserIgnored->getId() == $this->oUserCurrent->getId()) {
             $this->Message_AddErrorSingle($this->Lang_Get('ignore_dissalow_own'), $this->Lang_Get('error'));
             return;
         }
+        $sType = getRequest('type');
 
-        if ($this->User_IsUserIgnoredByUser($this->oUserCurrent->getId(), $oUserIgnored->getId())) {
-            // remove user from ignore list
-            if ($this->User_UnIgnoreUserByUser($this->oUserCurrent->getId(), $oUserIgnored->getId())) {
-                $this->Message_AddNoticeSingle($this->Lang_Get('disignore_user_ok'), $this->Lang_Get('attention'));
-                $this->Viewer_AssignAjax('sText', $this->Lang_Get('ignore_user'));
+        if ($sType == PluginIgnore_ModuleUser::TYPE_IGNORE_COMMENTS || $sType == PluginIgnore_ModuleUser::TYPE_IGNORE_TOPICS) {
+            if ($this->User_IsUserIgnoredByUser($this->oUserCurrent->getId(), $oUserIgnored->getId(), $sType)) {
+                // remove user from ignore list
+                if ($this->User_UnIgnoreUserByUser($this->oUserCurrent->getId(), $oUserIgnored->getId(), $sType)) {
+                    $this->Message_AddNoticeSingle($this->Lang_Get('disignore_user_ok_' . $sType), $this->Lang_Get('attention'));
+                    $this->Viewer_AssignAjax('sText', $this->Lang_Get('ignore_user_' . $sType));
+                } else {
+                    $this->Message_AddErrorSingle(
+                            $this->Lang_Get('system_error'), $this->Lang_Get('error')
+                    );
+                }
             } else {
-                $this->Message_AddErrorSingle(
-                        $this->Lang_Get('system_error'), $this->Lang_Get('error')
-                );
+                $aForbidIgnore = $this->User_GetForbidIgnoredUsers();
+                //check ignored user in forbid ignored list
+                if (in_array($oUserIgnored->getId(), $aForbidIgnore)) {
+                    $this->Message_AddErrorSingle($this->Lang_Get('ignore_dissalow_this'), $this->Lang_Get('error'));
+                    return;
+                }
+
+                //add user to ignore list
+                if ($this->User_IgnoreUserByUser($this->oUserCurrent->getId(), $oUserIgnored->getId(), $sType)) {
+                    $this->Message_AddNoticeSingle($this->Lang_Get('ignore_user_ok_' . $sType), $this->Lang_Get('attention'));
+                    $this->Viewer_AssignAjax('sText', $this->Lang_Get('disignore_user_' . $sType));
+                } else {
+                    $this->Message_AddErrorSingle(
+                            $this->Lang_Get('system_error'), $this->Lang_Get('error')
+                    );
+                }
             }
         } else {
-            $aForbidIgnore = Config::Get('plugin.ignore.disallow_ignore');
-            //check ignored user in forbid ignored list
-            if (in_array($oUserIgnored->getId(), $aForbidIgnore)) {
-                $this->Message_AddErrorSingle($this->Lang_Get('ignore_dissalow_this'), $this->Lang_Get('error'));
-                return;
-            }
-            
-            //add user to ignore list
-            if ($this->User_IgnoreUserByUser($this->oUserCurrent->getId(), $oUserIgnored->getId())) {
-                $this->Message_AddNoticeSingle($this->Lang_Get('ignore_user_ok'), $this->Lang_Get('attention'));
-                $this->Viewer_AssignAjax('sText', $this->Lang_Get('disignore_user'));
-            } else {
-                $this->Message_AddErrorSingle(
-                        $this->Lang_Get('system_error'), $this->Lang_Get('error')
-                );
-            }
+            $this->Message_AddErrorSingle($this->Lang_Get('system_error'), $this->Lang_Get('error'));
+            return;
         }
     }
 
