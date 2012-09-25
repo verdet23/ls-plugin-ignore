@@ -1,13 +1,13 @@
 {if $oUserCurrent->isAdministrator()}
-    <a href="#" onclick="forbidIgnoreUser({$oUserProfile->getId()}, this); return false;">{if $bForbidIgnore}{$aLang.allow_ignore_user}{else}{$aLang.forbid_ignore_user}{/if}</a><br/>
+    <a href="#" onclick="forbidIgnoreUser({$oUserProfile->getId()}, this); return false;">{if $bForbidIgnore}{$aLang.plugin.ignore.allow_ignore_user}{else}{$aLang.forbid_ignore_user}{/if}</a><br/>
 {/if}
 
 {if $oUserCurrent->getId() != $oUserProfile->getId()}
     {if !$bForbidIgnore}
-        <a href="#" onclick="ignoreUser({$oUserProfile->getId()}, 'topics',this); return false;">{if $bIgnoredTopics}{$aLang.disignore_user_topics}{else}{$aLang.ignore_user_topics}{/if}</a><br/>
-        <a href="#" onclick="ignoreUser({$oUserProfile->getId()}, 'comments',this); return false;">{if $bIgnoredComments}{$aLang.disignore_user_comments}{else}{$aLang.ignore_user_comments}{/if}</a><br/>
+        <a href="#" onclick="ignoreUser({$oUserProfile->getId()}, 'topics',this); return false;">{if $bIgnoredTopics}{$aLang.plugin.ignore.disignore_user_topics}{else}{$aLang.plugin.ignore.ignore_user_topics}{/if}</a><br/>
+        <a href="#" onclick="ignoreUser({$oUserProfile->getId()}, 'comments',this); return false;">{if $bIgnoredComments}{$aLang.plugin.ignore.disignore_user_comments}{else}{$aLang.plugin.ignore.ignore_user_comments}{/if}</a><br/>
     {/if}
-    <a href="#" onclick="ignoreTalkUser('{$oUserProfile->getLogin()}', {$oUserProfile->getId()},this); return false;">{if $bIgnoredTalks}{$aLang.disignore_user_talks}{else}{$aLang.ignore_user_talks}{/if}</a><br/>
+    <a href="#" onclick="ignoreTalkUser('{$oUserProfile->getLogin()}', {$oUserProfile->getId()},this); return false;">{if $bIgnoredTalks}{$aLang.plugin.ignore.disignore_user_talks}{else}{$aLang.plugin.ignore.ignore_user_talks}{/if}</a><br/>
     
 {/if}    
 
@@ -54,8 +54,8 @@
                 }
                     
                 if (!error) {
-                    jQuery(a).html(ls.lang.get('ignore_user_talks'));
-                    ls.msg.notice(null,ls.lang.get('disignore_user_ok_talk'));
+                    jQuery(a).html(ls.lang.get('plugin.ignore.ignore_user_talks'));
+                    ls.msg.notice(null,ls.lang.get('plugin.ignore.disignore_user_ok_talk'));
                     bIgnoreState = 0;
                 }
             });
@@ -72,13 +72,13 @@
                         }
                     });
                 }
+
+                if (!error) {
+                    jQuery(a).html(ls.lang.get('plugin.ignore.disignore_user_talks'));
+                    ls.msg.notice(null,ls.lang.get('plugin.ignore.ignore_user_ok_talk'));
+                    bIgnoreState = 1;
+                }
             });
-            if (!error) {
-                jQuery(a).html(ls.lang.get('disignore_user_talks'));
-                ls.msg.notice(null,ls.lang.get('ignore_user_ok_talk'));
-                bIgnoreState = 1;
-            }
-                
         }
                 
     }

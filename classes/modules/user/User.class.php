@@ -1,7 +1,11 @@
 <?php
 
 /**
- * @method oMapper ModuleUser_Mapper_User 
+ * PluginIgnore_ModuleUser
+ *
+ * @extends ModuleUser
+ * @method oMapper ModuleUser_Mapper_User
+ *
  */
 class PluginIgnore_ModuleUser extends PluginIgnore_Inherit_ModuleUser
 {
@@ -15,6 +19,7 @@ class PluginIgnore_ModuleUser extends PluginIgnore_Inherit_ModuleUser
      * @param string $sUserId
      * @param string $sUserIgnoreId
      * @param string $sType
+     *
      * @return boolean
      */
     public function IgnoreUserByUser($sUserId, $sUserIgnoreId, $sType)
